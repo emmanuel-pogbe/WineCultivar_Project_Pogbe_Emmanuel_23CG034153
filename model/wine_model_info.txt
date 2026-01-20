@@ -1,0 +1,19 @@
+WINE CULTIVAR PREDICTION MODEL - INFORMATION
+======================================================================
+
+SELECTED FEATURES:
+  - alcohol
+  - malic_acid
+  - total_phenols
+  - flavanoids
+  - color_intensity
+  - proline
+
+TARGET VARIABLE: cultivar
+
+MODEL PERFORMANCE:
+  - Training Accuracy: 1.0000
+  - Testing Accuracy: 0.9722
+  - Precision (Weighted): 0.9741
+  - Recall (Weighted): 0.9722
+  - F1-Score (Weighted): 0.9720

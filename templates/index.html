@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wine Cultivar Prediction System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px;
+        }
+
+        .section {
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h2::before {
+            content: "🍷";
+            font-size: 1.3em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input[type="number"]:hover {
+            border-color: #667eea;
+        }
+
+        .input-help {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .input-help::before {
+            content: "ℹ";
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-predict {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-predict:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-predict:active {
+            transform: translateY(0);
+        }
+
+        .btn-reset {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-reset:hover {
+            background: #d0d0d0;
+        }
+
+        .btn-example {
+            background: #667eea;
+            color: white;
+            font-size: 0.9em;
+            padding: 8px 16px;
+        }
+
+        .btn-example:hover {
+            background: #764ba2;
+        }
+
+        .results {
+            padding: 25px;
+            background: #f0f4ff;
+            border-radius: 10px;
+            border-left: 5px solid #28a745;
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results h2 {
+            color: #28a745;
+            margin-bottom: 20px;
+            border-left: none;
+            padding-left: 0;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #28a745;
+        }
+
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .cultivar-result {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .cultivar-name {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .confidence-score {
+            font-size: 1.3em;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: white;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .probability-section {
+            margin-top: 20px;
+        }
+
+        .probability-section h3 {
+            color: #333;
+            font-size: 1em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .probability-item {
+            margin-bottom: 12px;
+        }
+
+        .probability-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.95em;
+            color: #333;
+        }
+
+        .probability-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .probability-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .error {
+            background: #ffebee;
+            border-left-color: #c62828;
+            color: #c62828;
+            display: none;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .error.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .error-content {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .error-icon {
+            font-size: 1.5em;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid rgba(102, 126, 234, 0.1);
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .info-box strong {
+            color: #333;
+        }
+
+        .examples-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .example-item {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .example-item:hover {
+            border-color: #667eea;
+            background: #f5f7ff;
+            transform: translateX(5px);
+        }
+
+        .example-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .example-desc {
+            color: #666;
+            font-size: 0.8em;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 900px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .model-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🍇 Wine Cultivar Prediction</h1>
+            <p>Predict wine origin based on chemical properties using AI</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Input Section -->
+            <div class="section">
+                <h2>Input Wine Properties</h2>
+
+                <div class="info-box">
+                    <strong>📋 Instructions:</strong> Enter the chemical properties of your wine sample, then click "Predict" to get the cultivar prediction.
+                </div>
+
+                <form id="predictionForm">
+                    <!-- Alcohol -->
+                    <div class="form-group">
+                        <label for="alcohol">Alcohol Content (%)</label>
+                        <input type="number" id="alcohol" name="alcohol" 
+                               min="11.0" max="15.0" step="0.1" 
+                               placeholder="12.5" required>
+                        <div class="input-help">Alcohol percentage in wine (11.0 - 15.0%)</div>
+                    </div>
+
+                    <!-- Malic Acid -->
+                    <div class="form-group">
+                        <label for="malic_acid">Malic Acid (g/L)</label>
+                        <input type="number" id="malic_acid" name="malic_acid" 
+                               min="0.5" max="6.0" step="0.1" 
+                               placeholder="2.5" required>
+                        <div class="input-help">Malic acid concentration (0.5 - 6.0 g/L)</div>
+                    </div>
+
+                    <!-- Total Phenols -->
+                    <div class="form-group">
+                        <label for="total_phenols">Total Phenols (mg/L)</label>
+                        <input type="number" id="total_phenols" name="total_phenols" 
+                               min="1.0" max="4.0" step="0.1" 
+                               placeholder="2.3" required>
+                        <div class="input-help">Total phenolic compounds (1.0 - 4.0 mg/L)</div>
+                    </div>
+
+                    <!-- Flavanoids -->
+                    <div class="form-group">
+                        <label for="flavanoids">Flavanoids (mg/L)</label>
+                        <input type="number" id="flavanoids" name="flavanoids" 
+                               min="0.3" max="5.5" step="0.1" 
+                               placeholder="2.0" required>
+                        <div class="input-help">Flavanoid compounds (0.3 - 5.5 mg/L)</div>
+                    </div>
+
+                    <!-- Color Intensity -->
+                    <div class="form-group">
+                        <label for="color_intensity">Color Intensity</label>
+                        <input type="number" id="color_intensity" name="color_intensity" 
+                               min="0.1" max="0.7" step="0.01" 
+                               placeholder="0.35" required>
+                        <div class="input-help">Wine color intensity (0.1 - 0.7 AU)</div>
+                    </div>
+
+                    <!-- Proline -->
+                    <div class="form-group">
+                        <label for="proline">Proline (mg/L)</label>
+                        <input type="number" id="proline" name="proline" 
+                               min="250" max="1700" step="10" 
+                               placeholder="750" required>
+                        <div class="input-help">Proline amino acid concentration (250 - 1700 mg/L)</div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="button-group">
+                        <button type="submit" class="btn-predict">🔮 Predict Cultivar</button>
+                        <button type="reset" class="btn-reset">Clear Form</button>
+                    </div>
+                </form>
+
+                <!-- Example Data Section -->
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #333; margin-bottom: 15px; font-size: 1.1em;">📌 Try Examples</h3>
+                    <div class="examples-grid" id="examplesGrid">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="section">
+                <h2>Prediction Results</h2>
+
+                <!-- Error Message -->
+                <div class="error" id="errorMessage">
+                    <div class="error-content">
+                        <span class="error-icon">⚠️</span>
+                        <span id="errorText"></span>
+                    </div>
+                </div>
+
+                <!-- Loading Spinner -->
+                <div class="loading" id="loadingSpinner">
+                    <div class="spinner"></div>
+                    <p>Processing prediction...</p>
+                </div>
+
+                <!-- Results Display -->
+                <div class="results" id="resultsContainer">
+                    <!-- Cultivar Result Card -->
+                    <div class="cultivar-result">
+                        <div class="cultivar-name" id="cultivarName">--</div>
+                        <div class="confidence-score">
+                            Confidence: <span id="confidenceScore">--</span>%
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Probability Distribution -->
+                    <div class="probability-section">
+                        <h3>📊 Probability Distribution</h3>
+                        <div id="probabilityContainer">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Input Features Summary -->
+                    <div class="result-card">
+                        <h3 style="color: #333; margin-bottom: 12px;">📝 Input Features</h3>
+                        <div id="inputSummary">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Model Info Box -->
+                <div class="info-box" style="margin-top: 20px;">
+                    <strong>🤖 Model Information:</strong><br>
+                    Algorithm: Random Forest Classifier<br>
+                    Accuracy: 97.22%<br>
+                    Features: 6 chemical properties
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>🍷 Wine Cultivar Origin Prediction System | Machine Learning Model v1.0 | CSC334 Project</p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        const API_ENDPOINT = '/api/predict';
+        const EXAMPLES_ENDPOINT = '/api/example-data';
+
+        // Feature mapping
+        const FEATURES = [
+            'alcohol', 'malic_acid', 'total_phenols', 
+            'flavanoids', 'color_intensity', 'proline'
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            loadExamples();
+        });
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            const form = document.getElementById('predictionForm');
+            form.addEventListener('submit', handlePrediction);
+
+            // Reset results when form values change
+            FEATURES.forEach(feature => {
+                const input = document.getElementById(feature);
+                input.addEventListener('change', clearResults);
+            });
+        }
+
+        // Load and display example data
+        function loadExamples() {
+            fetch(EXAMPLES_ENDPOINT)
+                .then(response => response.json())
+                .then(data => {
+                    const grid = document.getElementById('examplesGrid');
+                    Object.entries(data).forEach(([key, example]) => {
+                        const div = document.createElement('div');
+                        div.className = 'example-item';
+                        div.innerHTML = `
+                            <div class="example-name">${example.name}</div>
+                            <div class="example-desc">${example.description}</div>
+                        `;
+                        div.addEventListener('click', () => fillFormWithExample(example.data));
+                        grid.appendChild(div);
+                    });
+                })
+                .catch(error => console.error('Error loading examples:', error));
+        }
+
+        // Fill form with example data
+        function fillFormWithExample(data) {
+            FEATURES.forEach(feature => {
+                if (data[feature] !== undefined) {
+                    document.getElementById(feature).value = data[feature];
+                }
+            });
+            clearResults();
+        }
+
+        // Handle prediction
+        async function handlePrediction(event) {
+            event.preventDefault();
+            
+            // Show loading
+            showLoading(true);
+            hideError();
+            clearResults();
+
+            // Collect form data
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData);
+
+            try {
+                // Make prediction request
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    showError(result.error);
+                    showLoading(false);
+                    return;
+                }
+
+                // Display results
+                displayResults(result);
+                showLoading(false);
+
+            } catch (error) {
+                showError('An error occurred: ' + error.message);
+                showLoading(false);
+            }
+        }
+
+        // Display prediction results
+        function displayResults(result) {
+            // Display cultivar result
+            document.getElementById('cultivarName').textContent = result.predicted_cultivar;
+            document.getElementById('confidenceScore').textContent = result.confidence.toFixed(2);
+            document.getElementById('confidenceFill').style.width = result.confidence + '%';
+
+            // Display probability distribution
+            const probContainer = document.getElementById('probabilityContainer');
+            probContainer.innerHTML = '';
+
+            Object.entries(result.probabilities).forEach(([cultivar, prob]) => {
+                const div = document.createElement('div');
+                div.className = 'probability-item';
+                div.innerHTML = `
+                    <div class="probability-label">
+                        <span>${cultivar}</span>
+                        <span>${prob.toFixed(2)}%</span>
+                    </div>
+                    <div class="probability-bar">
+                        <div class="probability-fill" style="width: ${prob}%"></div>
+                    </div>
+                `;
+                probContainer.appendChild(div);
+            });
+
+            // Display input summary
+            const summary = document.getElementById('inputSummary');
+            summary.innerHTML = '';
+            Object.entries(result.input_features).forEach(([feature, value]) => {
+                const p = document.createElement('p');
+                p.style.marginBottom = '8px';
+                p.innerHTML = `<strong>${feature}:</strong> ${value.toFixed(2)}`;
+                summary.appendChild(p);
+            });
+
+            // Show results
+            document.getElementById('resultsContainer').classList.add('show');
+        }
+
+        // Clear results display
+        function clearResults() {
+            document.getElementById('resultsContainer').classList.remove('show');
+            document.getElementById('inputSummary').innerHTML = '';
+        }
+
+        // Show loading spinner
+        function showLoading(show) {
+            const loader = document.getElementById('loadingSpinner');
+            if (show) {
+                loader.classList.add('show');
+            } else {
+                loader.classList.remove('show');
+            }
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            errorText.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        // Hide error message
+        function hideError() {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.classList.remove('show');
+        }
+    </script>
+</body>
+</html>
