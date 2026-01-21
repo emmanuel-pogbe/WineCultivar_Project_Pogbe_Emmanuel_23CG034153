@@ -22,11 +22,12 @@ def load_model_and_scaler():
     """Load the trained model and scaler from disk."""
     try:
         # Load the trained model
-        with open('model/wine_cultivar_model.pkl', 'rb') as f:
+        dir = "model"
+        with open(f'{dir}/wine_cultivar_model.pkl', 'rb') as f:
             model = pickle.load(f)
         
         # Load the scaler
-        with open('model/wine_scaler.pkl', 'rb') as f:
+        with open(f'{dir}/wine_scaler.pkl', 'rb') as f:
             scaler = pickle.load(f)
         
         print("✓ Model and scaler loaded successfully!")
@@ -109,8 +110,9 @@ FEATURE_INFO = {
 
 @app.route('/')
 def index():
-    """Serve the main index page with the prediction form."""
+    """Render the main application page."""
     return render_template('index.html', features=FEATURE_INFO)
+
 
 @app.route('/api/predict', methods=['POST'])
 def predict():
