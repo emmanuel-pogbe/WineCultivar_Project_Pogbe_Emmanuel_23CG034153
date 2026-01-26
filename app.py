@@ -10,7 +10,7 @@ import pickle
 import numpy as np
 
 # Initialize Flask application
-app = Flask(__name__,template_folder="../templates")
+app = Flask(__name__,template_folder="templates")
 app.config['JSON_SORT_KEYS'] = False
 
 # ============================================================================
