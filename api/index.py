@@ -8,10 +8,9 @@ chemical properties using a trained machine learning model.
 from flask import Flask, render_template, request, jsonify
 import pickle
 import numpy as np
-import os
 
 # Initialize Flask application
-app = Flask(__name__)
+app = Flask(__name__,template_folder="../templates")
 app.config['JSON_SORT_KEYS'] = False
 
 # ============================================================================

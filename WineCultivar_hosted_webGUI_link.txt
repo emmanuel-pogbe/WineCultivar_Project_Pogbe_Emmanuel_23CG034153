@@ -2,5 +2,5 @@ Name: Pogbe Emmanuel
 Matric Number: 23CG034153
 Machine Learning Algorithm Used: Random Forest Classifier
 Model persistence method used: Joblib (.pkl)
-Live link: 
+Live link: https://wine-cultivar-project-pogbe-emmanue-kappa.vercel.app/
 Github: https://github.com/emmanuel-pogbe/WineCultivar_Project_Pogbe_Emmanuel_23CG034153
