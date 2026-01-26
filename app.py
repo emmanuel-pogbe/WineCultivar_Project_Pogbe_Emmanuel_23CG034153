@@ -8,7 +8,7 @@ chemical properties using a trained machine learning model.
 from flask import Flask, render_template, request, jsonify
 import pickle
 import numpy as np
-
+import os
 # Initialize Flask application
 app = Flask(__name__,template_folder="templates")
 app.config['JSON_SORT_KEYS'] = False
@@ -264,28 +264,6 @@ if __name__ == '__main__':
     if MODEL is None or SCALER is None:
         print("ERROR: Could not load model or scaler. Make sure the .pkl files are in the model/ directory.")
         exit(1)
-    
-    print("\n" + "="*70)
-    print("WINE CULTIVAR PREDICTION SYSTEM - WEB APPLICATION")
-    print("="*70)
-    print("\n✓ Flask application initialized successfully!")
-    print("✓ Model and scaler loaded!")
-    print("\n📊 Model Information:")
-    print(f"   - Algorithm: Random Forest Classifier")
-    print(f"   - Features: {len(SELECTED_FEATURES)} (alcohol, malic_acid, total_phenols,")
-    print(f"                          flavanoids, color_intensity, proline)")
-    print(f"   - Classes: 3 (Cultivar 1, 2, 3)")
-    print(f"   - Test Accuracy: 97.22%")
-    print("\n🌐 Web Server:")
-    print("   - Starting Flask server on http://localhost:5000")
-    print("   - Open your browser and navigate to http://localhost:5000")
-    print("\n💡 Features:")
-    print("   - Input wine chemical properties")
-    print("   - Get instant cultivar predictions")
-    print("   - View confidence scores")
-    print("   - See probability distribution")
-    print("\n⚠️  Press Ctrl+C to stop the server")
-    print("="*70 + "\n")
-    
     # Run the Flask application
-    app.run(debug=True, host='localhost', port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)
